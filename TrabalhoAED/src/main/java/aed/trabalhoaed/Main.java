@@ -7,6 +7,7 @@ package aed.trabalhoaed;
 
 import Estruturas.Database;
 import Estruturas.Registro;
+import Estruturas.Tabela;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.DataInputStream;
@@ -173,14 +174,35 @@ public class Main {
         System.out.println("Consultas terminadas (" + duration + " milliseconds)");
     }
 
+    public static void RemoveTodosRegistros(String file, Database d) throws FileNotFoundException, IOException {
+        BufferedReader br = new BufferedReader(new FileReader(file));
+        String line = br.readLine();
+
+        long startTime = System.currentTimeMillis();
+        String tableName = null;
+
+        while (line != null) {
+            if (line.startsWith("begin")) {
+                tableName = line.split("\t ")[1];
+                System.out.println("Removendo da tabela: " + tableName);
+                line = br.readLine();
+            }
+            d.removerRegistro(tableName, line);
+            line = br.readLine();
+        }
+        br.close();
+        long duration = (System.currentTimeMillis() - startTime);
+        System.out.println();
+        System.out.println("Remoçoes terminadas (" + duration + " milliseconds)");
+    }
+
     public static void main(String[] args) throws FileNotFoundException, IOException {
-        
+
         DataInputStream in = new DataInputStream(System.in);
         System.out.print("Digite o caminho do arquivo de entrada(ex.: /home/usda.sql) :");
         String file = in.readLine();
 
         //String file = "/home/nicolasferranti/Downloads/usda-r18-1.0/usda.sql";
-        
         BufferedReader br = new BufferedReader(new FileReader(file));
         String line = br.readLine();
 
@@ -194,7 +216,7 @@ public class Main {
             if (line.startsWith("CREATE TABLE")) {
                 String tableName = line.split(" ")[2];
                 line = br.readLine();
-                    
+
                 ArrayList<String> colunas = new ArrayList<>();
                 while (!line.startsWith(");")) {
 
@@ -216,6 +238,10 @@ public class Main {
                 indiceChaves = getIndex(line, pks);
 
                 line = br.readLine();
+
+                Tabela t = d.getTabela(tableName);
+                t.setChavesPrimarias(indiceChaves);
+
                 while (!line.startsWith("\\.")) {
 
                     line = line.replace("\t", "\t ");
@@ -227,8 +253,11 @@ public class Main {
                     identificador = identificador.replace(" ", "");
 
                     line = br.readLine();
+                    for (int k = 0; k < valores.length; k++) {
+                        valores[k] = valores[k].trim();
+                    }
 
-                   Registro r = new Registro(identificador, valores);
+                    Registro r = new Registro(identificador, valores);
                     d.addRegistro(tableName, r);
                 }
             }
@@ -240,7 +269,10 @@ public class Main {
         long duration = (System.currentTimeMillis() - startTime);
         System.out.println();
         System.out.println("(" + duration + " milliseconds)");
-        int op = -1;
+
+        int op = -1, opcount = -1, count;
+        String tabelaNome, id, temp, campo, tabelaNome2;
+
         while (op != 0) {
             System.out.println("----------------");
             System.out.println("(0) Sair");
@@ -248,35 +280,137 @@ public class Main {
             System.out.println("(2) Executar todas as consultas sem impressão");
             System.out.println("(3) Executar todas as consultas com impressão");
             System.out.println("(4) Exibir tabelas");
+            System.out.println("(5) Remover registro");
+            System.out.println("(6) Contar registros");
+            System.out.println("(7) Fazer consulta informando tabela, coluna e valor");
+            System.out.println("(8) Consulta INNER JOIN");
+            System.out.println("(9) Consulta OUTER JOIN");
             System.out.println("----------------");
             op = Integer.parseInt(in.readLine());
+
             switch (op) {
                 case 0:
                     System.exit(0);
                 case 1:
                     System.out.print("Digite o nome da tabela :");
-                    String tabelaNome = in.readLine();
+                    tabelaNome = in.readLine();
                     System.out.print("Digite o id do registro(chaves compostas estão concatenadas, * seleciona tudo) :");
-                    String id = in.readLine();
+                    id = in.readLine();
                     d.Consulta(tabelaNome, id);
                     break;
                 case 2:
                     System.out.print("Digite um local e nome para armazenar temporariamente as consultas( ex.: /tmp/a1.txt) :");
-                    String temp = in.readLine();
+                    temp = in.readLine();
                     EscreveTodasConsultas(file, temp);
                     System.out.println("Iniciando leitura de todas as consultas");
                     ExecutaTodasConsultas(temp, d);
                     break;
                 case 3:
                     System.out.print("Digite um local e nome para armazenar temporariamente as consultas( ex.: /tmp/a1.txt) :");
-                    String tempo = in.readLine();
-                    EscreveTodasConsultas(file, tempo);
+                    temp = in.readLine();
+                    EscreveTodasConsultas(file, temp);
                     System.out.println("Iniciando leitura de todas as consultas");
-                    ExecutaTodasConsultasCImpressao(tempo, d);
+                    ExecutaTodasConsultasCImpressao(temp, d);
                     break;
                 case 4:
                     d.printBD();
                     break;
+                case 5:
+                    System.out.println("----------------");
+                    System.out.println("(0) Voltar ao menu principal");
+                    System.out.println("(1) Remover 1 registro");
+                    System.out.println("(2) Remover todos os registros");
+                    System.out.println("----------------");
+                    opcount = Integer.parseInt(in.readLine());
+                    switch (opcount) {
+                        case 0:
+                            break;
+                        case 1:
+                            System.out.print("Digite o nome da tabela :");
+                            tabelaNome = in.readLine();
+                            System.out.print("Digite o id do registro(chaves compostas estão concatenadas) :");
+                            id = in.readLine();
+                            d.removerRegistro(tabelaNome, id);
+                            break;
+                        case 2:
+                            System.out.print("Digite um local e nome para armazenar temporariamente os nomes para remoçao( ex.: /tmp/a1.txt) :");
+                            temp = in.readLine();
+                            EscreveTodasConsultas(file, temp);
+                            System.out.println("Iniciando todas as remoçoes");
+                            RemoveTodosRegistros(temp, d);
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+                case 6:
+                    System.out.println("----------------");
+                    System.out.println("(0) Voltar ao menu principal");
+                    System.out.println("(1) Contar todos os registros");
+                    System.out.println("(2) Contar com WHERE");
+                    System.out.println("----------------");
+                    opcount = Integer.parseInt(in.readLine());
+                    switch (opcount) {
+                        case 0:
+                            break;
+                        case 1:
+                            System.out.print("Digite o nome da tabela :");
+                            tabelaNome = in.readLine();
+                            count = d.countSimples(tabelaNome);
+                            System.out.println("Quantidade de registros :" + count);
+                            break;
+                        case 2:
+                            System.out.print("Digite o nome da tabela :");
+                            tabelaNome = in.readLine();
+                            System.out.print("Digite o nome da coluna que deseja buscar :");
+                            campo = in.readLine();
+                            System.out.print("Digite o valor da coluna:");
+                            id = in.readLine();
+                            count = d.countCondicional(tabelaNome, campo, id);
+                            if (count == -1) {
+                                System.out.println("Tabela ou coluna não encontrada");
+                            } else {
+                                System.out.println("Quantidade de registros :" + count);
+                            }
+                            break;
+                        default:
+                            System.out.println("Nenhuma opção valida selecionada, retornando ao menu principal");
+
+                    }
+                    break;
+                case 7:
+                    System.out.print("Digite o nome da tabela :");
+                    tabelaNome = in.readLine();
+                    System.out.print("Digite o nome da coluna que deseja buscar :");
+                    campo = in.readLine();
+                    System.out.print("Digite o valor da coluna:");
+                    id = in.readLine();
+                    d.Consulta(tabelaNome, id, campo);
+                    break;
+                case 8:
+                    System.out.println("----------------");
+                    System.out.println("SELECT * FROM Tabela1 INNER JOIN Tabela2 ON Campo;");
+                    System.out.print("Digite o nome da tabela(Tabela1) :");
+                    tabelaNome = in.readLine();
+                    System.out.println("SELECT * FROM " + tabelaNome + " INNER JOIN Tabela2 ON Campo;");
+                    System.out.print("Digite o nome da tabela(Tabela2) :");
+                    tabelaNome2 = in.readLine();
+                    System.out.println("SELECT * FROM " + tabelaNome + " INNER JOIN " + tabelaNome2 + " ON Campo;");
+                    System.out.print("Digite o nome da coluna(Campo) que deseja buscar :");
+                    campo = in.readLine();
+                    System.out.println("SELECT * FROM " + tabelaNome + " INNER JOIN " + tabelaNome2 + " ON " + campo + " ;");
+                    d.ConsultaInnerJoin(tabelaNome, tabelaNome2, campo);
+                    break;
+                case 9:
+                    System.out.println("----------------");
+                    System.out.println("|(T1 ∩ T2)| + |T1 - |(T1 ∩ T2)||");
+                    System.out.print("Digite o nome da tabela(T1) :");
+                    tabelaNome = in.readLine();
+                    System.out.print("Digite o nome da tabela(T2) :");
+                    tabelaNome2 = in.readLine();
+                    System.out.print("Digite o nome da coluna(Campo) que deseja buscar :");
+                    campo = in.readLine();
+                    d.ConsultaOuterJoin(tabelaNome, tabelaNome2, campo);
                 default:
                     System.out.println("Opção não reconhecida");
             }

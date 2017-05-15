@@ -13,6 +13,7 @@ import java.util.ArrayList;
  */
 public class Registro {
     
+    
     public String []dados;
     public String id;
     
