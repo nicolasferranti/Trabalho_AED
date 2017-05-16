@@ -561,9 +561,6 @@ public class Database {
 
             long begin = System.currentTimeMillis();
 
-            t1.ordenaColuna(campo); // O(nlogn)
-            t2.ordenaColuna(campo); // O(mlogm)
-
             int indiceColuna1 = t1.getIndiceColuna(campo);
             int indiceColuna2 = t2.getIndiceColuna(campo);
             if (indiceColuna1 != -2 && indiceColuna2 != -2) {
@@ -627,9 +624,6 @@ public class Database {
             }
 
             long begin = System.currentTimeMillis();
-
-            t1.ordenaColuna(campo); // O(nlogn)
-            t2.ordenaColuna(campo); // O(mlogm)
 
             int indiceColuna1 = t1.getIndiceColuna(campo);
             int indiceColuna2 = t2.getIndiceColuna(campo);
@@ -698,8 +692,6 @@ public class Database {
 
             long begin = System.currentTimeMillis();
 
-            t1.ordenaColuna(campo); // O(nlogn)
-            t2.ordenaColuna(campo); // O(mlogm)
 
             int indiceColuna1 = t1.getIndiceColuna(campo);
             int indiceColuna2 = t2.getIndiceColuna(campo);
