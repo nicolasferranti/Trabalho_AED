@@ -97,6 +97,31 @@ public class Tabela {
         return -2;
     }
 
+    public void ordenaColuna(String coluna) {
+        int indiceColuna = this.getIndiceColuna(coluna);
+        if (indiceColuna != -2) {
+            this.ordenarTabela(indiceColuna);
+        }
+    }
+
+    protected boolean ordenaColunas(String[] colunas) {
+        int[] col = new int[colunas.length];
+        int indiceColuna, i = 0;
+        for (String c : colunas) {
+            indiceColuna = this.getIndiceColuna(c);
+            if (indiceColuna != -2 && this.ehPrimaria[indiceColuna]) {
+                col[i] = indiceColuna;
+                i++;
+            } else {
+                return false;
+            }
+        }
+        MergeSort ms = new MergeSort();
+        ms.SortMultiplosCampos(registros, this.indice, col);
+        //this.printTabela();
+        return true;
+    }
+
     public Registro buscarRegistro(String identificador) {
         if (this.indice == 0) {
             return null;
@@ -294,12 +319,12 @@ public class Tabela {
             }
             i++;
         }
-//        i=0;
-//        for(String c : this.colunas){
-//            System.out.print(c+"["+this.ehPrimaria[i]+"] | ");
-//            i++;
-//        }
-//        System.out.println();
+        i = 0;
+        for (String c : this.colunas) {
+            System.out.print(c + "[" + this.ehPrimaria[i] + "] | ");
+            i++;
+        }
+        System.out.println();
     }
 
     public boolean ehChave(String coluna) {

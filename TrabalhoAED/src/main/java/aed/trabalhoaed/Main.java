@@ -202,7 +202,6 @@ public class Main {
         System.out.print("Digite o caminho do arquivo de entrada(ex.: /home/usda.sql) :");
         String file = in.readLine();
 
-        //String file = "/home/nicolasferranti/Downloads/usda-r18-1.0/usda.sql";
         BufferedReader br = new BufferedReader(new FileReader(file));
         String line = br.readLine();
 
@@ -270,21 +269,21 @@ public class Main {
         System.out.println();
         System.out.println("(" + duration + " milliseconds)");
 
-        int op = -1, opcount = -1, count;
+        int op = -1, opcount = -1, count, key;
         String tabelaNome, id, temp, campo, tabelaNome2;
 
         while (op != 0) {
             System.out.println("----------------");
-            System.out.println("(0) Sair");
-            System.out.println("(1) Fazer consulta informando tabela e id");
-            System.out.println("(2) Executar todas as consultas sem impressão");
-            System.out.println("(3) Executar todas as consultas com impressão");
-            System.out.println("(4) Exibir tabelas");
-            System.out.println("(5) Remover registro");
-            System.out.println("(6) Contar registros");
-            System.out.println("(7) Fazer consulta informando tabela, coluna e valor");
-            System.out.println("(8) Consulta INNER JOIN");
-            System.out.println("(9) Consulta OUTER JOIN");
+            System.out.println("(0)  Sair");
+            System.out.println("(1)  Fazer consulta informando tabela e id");
+            System.out.println("(2)  Executar todas as consultas sem impressão");
+            System.out.println("(3)  Executar todas as consultas com impressão");
+            System.out.println("(4)  Exibir tabelas");
+            System.out.println("(5)  Remover registro");
+            System.out.println("(6)  Contar registros");
+            System.out.println("(7)  Fazer consulta informando tabela, coluna e valor");
+            System.out.println("(8)  Consulta INNER JOIN");
+            System.out.println("(9)  Consulta OUTER JOIN");
             System.out.println("----------------");
             op = Integer.parseInt(in.readLine());
 
@@ -388,6 +387,11 @@ public class Main {
                     d.Consulta(tabelaNome, id, campo);
                     break;
                 case 8:
+                    //String file = "/home/nicolasferranti/Downloads/usda-r18-1.0/usda.sql";
+                    System.out.println("----------------");
+                    System.out.println("(1) Uma chave atomica");
+                    System.out.println("(2) Varias chaves");
+                    key = Integer.parseInt(in.readLine());
                     System.out.println("----------------");
                     System.out.println("SELECT * FROM Tabela1 INNER JOIN Tabela2 ON Campo;");
                     System.out.print("Digite o nome da tabela(Tabela1) :");
@@ -396,10 +400,48 @@ public class Main {
                     System.out.print("Digite o nome da tabela(Tabela2) :");
                     tabelaNome2 = in.readLine();
                     System.out.println("SELECT * FROM " + tabelaNome + " INNER JOIN " + tabelaNome2 + " ON Campo;");
-                    System.out.print("Digite o nome da coluna(Campo) que deseja buscar :");
+                    System.out.print("Digite o nome da coluna(Campo) que deseja buscar(se optou por varias chaves deixe separadas por espaço simples ex.:'ndb_no nutr_no') :");
                     campo = in.readLine();
                     System.out.println("SELECT * FROM " + tabelaNome + " INNER JOIN " + tabelaNome2 + " ON " + campo + " ;");
-                    d.ConsultaInnerJoin(tabelaNome, tabelaNome2, campo);
+                    switch (key) {
+                        case 1:
+                            System.out.println("----------------");
+                            System.out.println("(0) Voltar ao menu principal");
+                            System.out.println("(1) Join com print");
+                            System.out.println("(2) Join sem print");
+                            System.out.println("(3) MergeInnerJoin sem print");
+                            System.out.println("(4) MergeInnerJoin com print");
+
+                            System.out.println("----------------");
+                            opcount = Integer.parseInt(in.readLine());
+                            switch (opcount) {
+                                case 0:
+                                    break;
+                                case 1:
+                                    d.ConsultaInnerJoinPrint(tabelaNome, tabelaNome2, campo);
+                                    break;
+                                case 2:
+                                    d.ConsultaInnerJoin(tabelaNome, tabelaNome2, campo);
+                                    break;
+                                case 3:
+                                    d.mergeJoin(tabelaNome, tabelaNome2, campo);
+                                    break;
+                                case 4:
+                                    d.mergeJoinPrint(tabelaNome, tabelaNome2, campo);
+                                    break;
+                                default:
+                                    break;
+                            }
+                            break;
+                        case 2:
+                            String[] splitted = campo.split(" ");
+                            d.mergeJoinMultiplosCampos(tabelaNome, tabelaNome2, splitted);
+                            //System.out.println("Executou MergeInnerJoin sem print");
+                            break;
+                        default:
+                            break;
+                    }
+
                     break;
                 case 9:
                     System.out.println("----------------");
@@ -410,7 +452,35 @@ public class Main {
                     tabelaNome2 = in.readLine();
                     System.out.print("Digite o nome da coluna(Campo) que deseja buscar :");
                     campo = in.readLine();
-                    d.ConsultaOuterJoin(tabelaNome, tabelaNome2, campo);
+
+                    System.out.println("----------------");
+                    System.out.println("(0) Voltar ao menu principal");
+                    System.out.println("(1) Join com print");
+                    System.out.println("(2) Join sem print");
+                    System.out.println("(3) MergeOuterJoin com print");
+                    System.out.println("(4) MergeOuterJoin sem print");
+                    System.out.println("----------------");
+                    opcount = Integer.parseInt(in.readLine());
+                    switch (opcount) {
+                        case 0:
+                            break;
+                        case 1:
+                            d.ConsultaOuterJoinPrint(tabelaNome, tabelaNome2, campo);
+                            break;
+                        case 2:
+                            d.ConsultaOuterJoin(tabelaNome, tabelaNome2, campo);
+                            break;
+                        case 3:
+                            d.mergeOuterJoinPrint(tabelaNome, tabelaNome2, campo);
+                            break;
+                        case 4:
+                            d.mergeOuterJoin(tabelaNome, tabelaNome2, campo);
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+
                 default:
                     System.out.println("Opção não reconhecida");
             }
