@@ -140,6 +140,7 @@ public class MergeSort {
                 compare1 += tempMergArr[i].dados[coluna];
                 compare2 += tempMergArr[j].dados[coluna];
             }
+            
             if (compare1.compareTo(compare2) <= 0) {
                 array[k] = tempMergArr[i];
                 i++;

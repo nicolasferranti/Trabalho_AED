@@ -97,12 +97,12 @@ public class Tabela {
         return -2;
     }
 
-    public void ordenaColuna(String coluna) {
-        int indiceColuna = this.getIndiceColuna(coluna);
-        if (indiceColuna != -2) {
-            this.ordenarTabela(indiceColuna);
-        }
-    }
+//    public void ordenaColuna(String coluna) {
+//        int indiceColuna = this.getIndiceColuna(coluna);
+//        if (indiceColuna != -2) {
+//            this.ordenarTabela(indiceColuna);
+//        }
+//    }
 
     protected boolean ordenaColunas(String[] colunas) {
         int[] col = new int[colunas.length];
