@@ -441,7 +441,8 @@ public class Main {
                     System.out.println("(2) OuterJoin sem print");
                     System.out.println("(3) MergeOuterJoin com print");
                     System.out.println("(4) MergeOuterJoin sem print");
-
+                    System.out.println("(5) Full OuterJoin sem print");
+                    System.out.println("(6) Full MergeOuterJoin sem print");
                     System.out.println("----------------");
                     opcount = Integer.parseInt(in.readLine());
                     switch (opcount) {
@@ -458,16 +459,19 @@ public class Main {
                         case 3:
                             splitted = campo.split(" ");
                             d.mergeOuterJoinMultiplosCamposPrint(tabelaNome, tabelaNome2, splitted);
-                            //d.mergeOuterJoinPrint(tabelaNome, tabelaNome2, campo);
                             break;
                         case 4:
                             splitted = campo.split(" ");
                             d.mergeOuterJoinMultiplosCampos(tabelaNome, tabelaNome2, splitted);
                             break;
-                            //                            d.mergeOuterJoin(tabelaNome, tabelaNome2, campo);
-                            //                            break;
                         case 5:
-
+                            splitted = campo.split(" ");
+                            d.ConsultaFullOuterJoin(tabelaNome, tabelaNome2, splitted);
+                            break;
+                        case 6:
+                            splitted = campo.split(" ");
+                            d.mergeFullOuterJoinMultiplosCampos(tabelaNome, tabelaNome2, splitted);
+                            break;
                         default:
                             break;
                     }
@@ -477,6 +481,5 @@ public class Main {
                     System.out.println("Opção não reconhecida");
             }
         }
-        //d.Consulta("data_src", "D1107");
     }
 }

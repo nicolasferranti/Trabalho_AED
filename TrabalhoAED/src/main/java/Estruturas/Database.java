@@ -635,209 +635,119 @@ public class Database {
     }
 
     /*
-        Consulta Inner Join O( nlogn + mlogm + m+n(melhor caso) ) com print, com apenas uma coluna a comparar,
-        ordena-se t1 e t2 em ordem crescente de 'campo', para cada registro em t1 busca o equivalente em t2 tal que t1.campo=t2.campo
-        de forma sequencial, armazenando um valor de salto para diminuir o numero de comparações
-        exibe o par
+        Consulta Outer Join O(n*m) sem print, com varias coluna a comparar,
+        para cada registro em t1 busca o equivalente em t2 tal que t1.campo=t2.campo
+        exibe o par ou, caso não ocorra match, exibe individualmente
      */
-//    public void mergeJoinPrint(String tabelaNome, String tabelaNome2, String campo) {
-//        long begin = System.currentTimeMillis();
-//
-//        Tabela t1 = this.getTabela(tabelaNome);
-//        Tabela t2 = this.getTabela(tabelaNome2);
-//
-//        int u, total = 0;
-//        String[] campos = new String[1];
-//        campos[0] = campo;
-//
-//        if (t1 != null && t2 != null && t1.ordenaColunas(campos) && t2.ordenaColunas(campos)) {
-//
-//            for (String c : t1.getColunas()) {
-//                System.out.print(" | " + c);
-//            }
-//            for (String c : t2.getColunas()) {
-//                System.out.print(" | " + c);
-//            }
-//
-//            int indiceColuna1 = t1.getIndiceColuna(campo);
-//            int indiceColuna2 = t2.getIndiceColuna(campo);
-//            if (indiceColuna1 != -2 && indiceColuna2 != -2) {
-//
-//                Registro[] r1 = t1.getRegistros();
-//                Registro[] r2 = t2.getRegistros();
-//
-//                int atual = 0;
-//                int old = 0;
-//
-//                for (int indiceValido = 0; indiceValido < t1.getCountRegistros(); indiceValido++) {
-//
-//                    // se o anterior é valido e é diferente do atual posso saltar
-//                    if (indiceValido - 1 > -1 && !r1[indiceValido - 1].dados[indiceColuna1].equals(r1[indiceValido].dados[indiceColuna1])) {
-//                        old = atual;
-//                    } else {
-//                        atual = old;
-//                    }
-//
-//                    while (atual < t2.getCountRegistros() && r1[indiceValido].dados[indiceColuna1].equals(r2[atual].dados[indiceColuna2])) {
-//
-//                        for (u = 0; u < r1[indiceValido].dados.length; u++) {
-//                            System.out.print(" | " + r1[indiceValido].dados[u]);
-//                        }
-//                        for (u = 0; u < r2[atual].dados.length; u++) {
-//                            System.out.print(" | " + r2[atual].dados[u]);
-//                        }
-//                        atual++;
-//                        total++;
-//                        System.out.println();
-//                    }
-//                }
-//                System.out.println("Tempo de duração :" + (System.currentTimeMillis() - begin) + " milliseconds");
-//                System.out.println("Total de registros: " + total);
-//            }
-//        }
-//    }
+    public void ConsultaFullOuterJoin(String tabelaNome, String tabelaNome2, String[] campos) {
+        long begin = System.currentTimeMillis();
+        int total = 0;
+        boolean existeMatch;
 
-    /*
-        Consulta Outer Join O( nlogn + mlogm + m+n(melhor caso) ) com print, com apenas uma coluna a comparar,
-        ordena-se t1 e t2 em ordem crescente de 'campo', para cada registro em t1 busca o equivalente em t2 tal que t1.campo=t2.campo
-        de forma sequencial, armazenando um valor de salto para diminuir o numero de comparações
-        exibe o par ou, se nao houver match, o valor de t1 
-     */
-//    public void mergeOuterJoinPrint(String tabelaNome, String tabelaNome2, String campo) {
-//        long begin = System.currentTimeMillis();
-//
-//        Tabela t1 = this.getTabela(tabelaNome);
-//        Tabela t2 = this.getTabela(tabelaNome2);
-//
-//        int u = 0, total = 0;
-//        boolean primeiro;
-//
-//        String[] campos = new String[1];
-//        campos[0] = campo;
-//        if (t1 != null && t2 != null && t1.ordenaColunas(campos) && t2.ordenaColunas(campos)) {
-//
-//            for (String c : t1.getColunas()) {
-//                System.out.print(" | " + c);
-//            }
-//            for (String c : t2.getColunas()) {
-//                System.out.print(" | " + c);
-//            }
-//
-//            int indiceColuna1 = t1.getIndiceColuna(campo);
-//            int indiceColuna2 = t2.getIndiceColuna(campo);
-//            if (indiceColuna1 != -2 && indiceColuna2 != -2) {
-//
-//                Registro[] r1 = t1.getRegistros();
-//                Registro[] r2 = t2.getRegistros();
-//
-//                int atual = 0;
-//                int old = 0;
-//
-//                for (int indiceValido = 0; indiceValido < t1.getCountRegistros(); indiceValido++) {
-//
-//                    primeiro = true;
-//
-//                    // se o anterior é valido e é diferente do atual posso saltar
-//                    if (indiceValido - 1 > -1 && !r1[indiceValido - 1].dados[indiceColuna1].equals(r1[indiceValido].dados[indiceColuna1])) {
-//                        old = atual;
-//                    } else {
-//                        atual = old;
-//                    }
-//
-//                    while (atual < t2.getCountRegistros() && r1[indiceValido].dados[indiceColuna1].equals(r2[atual].dados[indiceColuna2])) {
-//
-//                        primeiro = false;
-//                        for (u = 0; u < r1[indiceValido].dados.length; u++) {
-//                            System.out.print(" | " + r1[indiceValido].dados[u]);
-//                        }
-//                        for (u = 0; u < r2[atual].dados.length; u++) {
-//                            System.out.print(" | " + r2[atual].dados[u]);
-//                        }
-//                        atual++;
-//                        total++;
-//                        System.out.println();
-//                    }
-//
-//                    if (primeiro) {
-//                        for (u = 0; u < r1[indiceValido].dados.length; u++) {
-//                            System.out.print(" | " + r1[indiceValido].dados[u]);
-//                        }
-//                        total++;
-//                        System.out.println();
-//                    }
-//                }
-//                System.out.println("Tempo de duração :" + (System.currentTimeMillis() - begin) + " milliseconds");
-//                System.out.println("Total de registros: " + total);
-//            }
-//        }
-//    }
+        Tabela t1 = this.getTabela(tabelaNome);
+        Tabela t2 = this.getTabela(tabelaNome2);
+        if (t1 != null && t2 != null) {
 
-    /*
-        Consulta Outer Join O( nlogn + mlogm + m+n(melhor caso) ) sem print, com apenas uma coluna a comparar,
-        ordena-se t1 e t2 em ordem crescente de 'campo', para cada registro em t1 busca o equivalente em t2 tal que t1.campo=t2.campo
-        de forma sequencial, armazenando um valor de salto para diminuir o numero de comparações
-     */
-//    public void mergeOuterJoin(String tabelaNome, String tabelaNome2, String campo) {
-//        long begin = System.currentTimeMillis();
-//
-//        Tabela t1 = this.getTabela(tabelaNome);
-//        Tabela t2 = this.getTabela(tabelaNome2);
-//
-//        int u = 0, total = 0;
-//        boolean primeiro;
-//
-//        String[] campos = new String[1];
-//        campos[0] = campo;
-//        if (t1 != null && t2 != null && t1.ordenaColunas(campos) && t2.ordenaColunas(campos)) {
-//
-//            int indiceColuna1 = t1.getIndiceColuna(campo);
-//            int indiceColuna2 = t2.getIndiceColuna(campo);
-//            if (indiceColuna1 != -2 && indiceColuna2 != -2) {
-//
-//                Registro[] r1 = t1.getRegistros();
-//                Registro[] r2 = t2.getRegistros();
-//
-//                int atual = 0;
-//                int old = 0;
-//
-//                for (int indiceValido = 0; indiceValido < t1.getCountRegistros(); indiceValido++) {
-//
-//                    primeiro = true;
-//
-//                    // se o anterior é valido e é diferente do atual posso saltar
-//                    if (indiceValido - 1 > -1 && !r1[indiceValido - 1].dados[indiceColuna1].equals(r1[indiceValido].dados[indiceColuna1])) {
-//                        old = atual;
-//                    } else {
-//                        atual = old;
-//                    }
-//
-//                    while (atual < t2.getCountRegistros() && r1[indiceValido].dados[indiceColuna1].equals(r2[atual].dados[indiceColuna2])) {
-//
-//                        primeiro = false;
-//                        for (u = 0; u < r1[indiceValido].dados.length; u++) {
-//                            //System.out.print(" | " + r1[indiceValido].dados[u]);
-//                        }
-//                        for (u = 0; u < r2[atual].dados.length; u++) {
-//                            //System.out.print(" | " + r2[atual].dados[u]);
-//                        }
-//                        atual++;
-//                        total++;
-//                        //System.out.println();
-//                    }
-//
-//                    if (primeiro) {
-//                        for (u = 0; u < r1[indiceValido].dados.length; u++) {
-//                            //System.out.print(" | " + r1[indiceValido].dados[u]);
-//                        }
-//                        total++;
-//                        //System.out.println();
-//                    }
-//                }
-//                System.out.println("Tempo de duração :" + (System.currentTimeMillis() - begin) + " milliseconds");
-//                System.out.println("Total de registros: " + total);
-//            }
-//        }
-//    }
+            /// Consulta os indices das colunas definidas pelo usuario e armazena em dois vetores(col1 e col2)
+            int[] col1 = new int[campos.length];
+            int[] col2 = new int[campos.length];
+            int indiceColuna;
+            int i = 0;
+            for (int k = 0; k < campos.length; k++) {
+
+                indiceColuna = t1.getIndiceColuna(campos[k]);
+                if (indiceColuna != -2 && t1.ehChave(campos[k])) {
+                    col1[i] = indiceColuna;
+                    i++;
+                } else {
+                    System.out.println(campos[k] + " não é chave");
+                    return;
+                }
+            }
+            i = 0;
+            for (int k = 0; k < campos.length; k++) {
+                indiceColuna = t2.getIndiceColuna(campos[k]);
+                if (indiceColuna != -2 && t2.ehChave(campos[k])) {
+                    col2[i] = indiceColuna;
+                    i++;
+                } else {
+                    System.out.println(campos[k] + " não é chave");
+                    return;
+                }
+            }
+            /// fim da consulta por indices
+
+            int u, coluna;
+
+            Registro iteradorRegistro = null;
+            String[] valores;
+
+            Registro[] r1 = t1.getRegistros();
+            Registro[] r2 = t2.getRegistros();
+
+            String compare1, compare2;
+
+            boolean[] visitado2 = new boolean[t2.getCountRegistros()];
+            for (u = 0; u < visitado2.length; u++) {
+                visitado2[u] = false;
+            }
+
+            //para todo registro em t1
+            for (int indiceValido = 0; indiceValido < t1.getCountRegistros(); indiceValido++) {
+
+                existeMatch = false;
+
+                // armazena o valor do registro atual para comparar
+                compare1 = "";
+                for (coluna = 0; coluna < col1.length; coluna++) {
+                    compare1 += r1[indiceValido].dados[coluna];
+                }
+
+                for (int indiceValido2 = 0; indiceValido2 < t2.getCountRegistros(); indiceValido2++) {
+
+                    compare2 = "";
+                    for (coluna = 0; coluna < col2.length; coluna++) {
+                        compare2 += r2[indiceValido2].dados[coluna];
+                    }
+
+                    if (compare1.equals(compare2)) {
+                        existeMatch = true;
+                        total++;
+                        visitado2[indiceValido2] = true;
+                        for (u = 0; u < r1[indiceValido].dados.length; u++) {
+                            //System.out.print(" | " + r1[indiceValido].dados[u]);
+                        }
+                        for (u = 0; u < r2[indiceValido2].dados.length; u++) {
+                            //System.out.print(" | " + r2[indiceValido2].dados[u]);
+                        }
+                        //System.out.println();
+                    }
+
+                }
+
+                if (!existeMatch) {
+                    total++;
+                    for (u = 0; u < r1[indiceValido].dados.length; u++) {
+                        //System.out.print(" | " + r1[indiceValido].dados[u]);
+                    }
+                }
+
+            }
+            for (u = 0; u < visitado2.length; u++) {
+                if (!visitado2[u]) {
+                    total++;
+                    for (int k = 0; k < r2[u].dados.length; k++) {
+                        //System.out.print(" | " + r2[indiceValido2].dados[u]);
+                    }
+                }
+            }
+
+        } else {
+            System.out.println("Nomes incorretos ou não existe tabela");
+        }
+        System.out.println("Tempo de duração :" + (System.currentTimeMillis() - begin) + " milliseconds");
+        System.out.println("Total de registros: " + total);
+    }
 
     /*
         Consulta Inner Join O( nlogn + mlogm + m+n(melhor caso) ) sem print, com varias colunas a comparar,
@@ -917,6 +827,9 @@ public class Database {
                     }
                 }
 
+                // armazena o valor do registro anterior em t1 para testar salto
+                compareAnterior = compare1;
+
                 // se o atual é maior que a qtd de registros em t2,
                 // entao acabou o algoritmo,
                 // pois esta em indice maior em r2 e o restante em r1 não tem possibilidade de match
@@ -941,8 +854,14 @@ public class Database {
                     }
                 }
 
-                // armazena o valor do registro anterior em t1 para testar salto
-                compareAnterior = compare1;
+                while (compare1.compareTo(compare2) < 0 && indiceValido + 1 < t1.getCountRegistros()) {
+                    indiceValido++;
+                    compare1 = "";
+                    for (coluna = 0; coluna < col1.length; coluna++) {
+                        compare1 += r1[indiceValido].dados[coluna];
+                    }
+                    compareAnterior = compare1;
+                }
 
                 // enquanto meu indice atual é valido e r1.chaves=r2.chaves
                 while (atual < t2.getCountRegistros() && compare1.equals(compare2)) {
@@ -1060,6 +979,9 @@ public class Database {
                     }
                 }
 
+                // armazena o valor do registro anterior em t1 para testar salto
+                compareAnterior = compare1;
+
                 // se o atual é maior que a qtd de registros em t2,
                 // entao acabou o algoritmo,
                 // pois esta em indice maior em r2 e o restante em r1 não tem possibilidade de match
@@ -1084,8 +1006,14 @@ public class Database {
                     }
                 }
 
-                // armazena o valor do registro anterior em t1 para testar salto
-                compareAnterior = compare1;
+                while (compare1.compareTo(compare2) < 0 && indiceValido + 1 < t1.getCountRegistros()) {
+                    indiceValido++;
+                    compare1 = "";
+                    for (coluna = 0; coluna < col1.length; coluna++) {
+                        compare1 += r1[indiceValido].dados[coluna];
+                    }
+                    compareAnterior = compare1;
+                }
 
                 // enquanto meu indice atual é valido e r1.chaves=r2.chaves
                 while (atual < t2.getCountRegistros() && compare1.equals(compare2)) {
@@ -1444,4 +1372,156 @@ public class Database {
             System.out.println("Total de registros: " + total);
         }
     }
+
+    public void mergeFullOuterJoinMultiplosCampos(String tabelaNome, String tabelaNome2, String[] splitted) {
+        long begin = System.currentTimeMillis();
+        Tabela t1 = this.getTabela(tabelaNome);
+        Tabela t2 = this.getTabela(tabelaNome2);
+
+        // se as tabelas existem, ordene-as pelo conjunto de campos enviado
+        if (t1 != null && t2 != null && t1.ordenaColunas(splitted) && t2.ordenaColunas(splitted)) {
+
+            Registro[] r1 = t1.getRegistros();
+            Registro[] r2 = t2.getRegistros();
+
+            String compare1;
+            String compare2;
+
+            int atual = 0;
+            int old = 0;
+            int coluna;
+
+            /// Consulta os indices das colunas definidas pelo usuario e armazena em dois vetores(col1 e col2)
+            int[] col1 = new int[splitted.length];
+            int[] col2 = new int[splitted.length];
+            int indiceColuna;
+            int i = 0;
+            for (int k = 0; k < splitted.length; k++) {
+
+                indiceColuna = t1.getIndiceColuna(splitted[k]);
+                if (indiceColuna != -2 && t1.ehChave(splitted[k])) {
+                    col1[i] = indiceColuna;
+                    i++;
+                } else {
+                    System.out.println(splitted[k] + " não é chave");
+                    return;
+                }
+            }
+            i = 0;
+            for (int k = 0; k < splitted.length; k++) {
+                indiceColuna = t2.getIndiceColuna(splitted[k]);
+                if (indiceColuna != -2 && t2.ehChave(splitted[k])) {
+                    col2[i] = indiceColuna;
+                    i++;
+                } else {
+                    System.out.println(splitted[k] + " não é chave");
+                    return;
+                }
+            }
+            System.out.println();
+            /// fim da consulta por indices
+
+            int u;
+            int total = 0;
+            String compareAnterior = "";
+
+            // para cada registro em t1
+            for (int indiceValido = 0; indiceValido < t1.getCountRegistros(); indiceValido++) {
+
+                // armazena o valor do registro atual para comparar
+                compare1 = "";
+                for (coluna = 0; coluna < col1.length; coluna++) {
+                    compare1 += r1[indiceValido].dados[coluna];
+                }
+
+                // se o anterior é valido e é diferente do atual posso saltar
+                // na primeira execução nao entra aqui pois indice-1 = -1
+                if (indiceValido - 1 > -1) {
+                    if (!compareAnterior.equals(compare1)) {
+                        old = atual;
+                    } else {
+                        atual = old;
+                    }
+                }
+
+                // armazena o valor do registro anterior em t1 para testar salto
+                compareAnterior = compare1;
+
+                // se o atual é maior que a qtd de registros em t2,
+                // entao acabou o algoritmo,
+                // pois esta em indice maior em r2 e o restante em r1 não tem possibilidade de match
+                if (atual >= t2.getCountRegistros()) {
+                    while (indiceValido < t1.getCountRegistros()) {
+                        for (u = 0; u < r1[indiceValido].dados.length; u++) {
+                            //System.out.print(" | " + r1[indiceValido].dados[u]);
+                        }
+                        //System.out.println();
+                        total++;
+                        indiceValido++;
+                    }
+                    System.out.println("Tempo de duração :" + (System.currentTimeMillis() - begin) + " milliseconds");
+                    System.out.println("Total de registros: " + total);
+                    return;
+                }
+
+                compare2 = "";
+                for (coluna = 0; coluna < col2.length; coluna++) {
+                    compare2 += r2[atual].dados[coluna];
+                }
+
+                while (compare1.compareTo(compare2) > 0 && atual + 1 < t2.getCountRegistros()) {
+                    total++;
+                    for (u = 0; u < r2[atual].dados.length; u++) {
+                        //System.out.print(" | " + r2[atual].dados[u]);
+                    }
+
+                    atual++;
+                    old = atual;
+                    compare2 = "";
+                    for (coluna = 0; coluna < col2.length; coluna++) {
+                        compare2 += r2[atual].dados[coluna];
+                    }
+                }
+
+                while (compare1.compareTo(compare2) < 0 && indiceValido + 1 < t1.getCountRegistros()) {
+                    total++;
+                    indiceValido++;
+                    compare1 = "";
+                    for (u = 0; u < r1[indiceValido].dados.length; u++) {
+                        //System.out.print(" | " + r1[indiceValido].dados[u]);
+                    }
+                    for (coluna = 0; coluna < col1.length; coluna++) {
+                        compare1 += r1[indiceValido].dados[coluna];
+                    }
+                    compareAnterior = compare1;
+                }
+
+                // enquanto meu indice atual é valido e r1.chaves=r2.chaves
+                while (atual < t2.getCountRegistros() && compare1.equals(compare2)) {
+
+                    //escreve ambos
+                    for (u = 0; u < r1[indiceValido].dados.length; u++) {
+                        //System.out.print(" | " + r1[indiceValido].dados[u]);
+                    }
+                    for (u = 0; u < r2[atual].dados.length; u++) {
+                        //System.out.print(" | " + r2[atual].dados[u]);
+                    }
+                    atual++;
+                    total++;
+
+                    // atualiza o valor de comparação para o proximo registro
+                    // em t2, caso o indice seja válido
+                    if (atual < t2.getCountRegistros()) {
+                        compare2 = "";
+                        for (coluna = 0; coluna < col2.length; coluna++) {
+                            compare2 += r2[atual].dados[coluna];
+                        }
+                    }
+                }
+            }
+            System.out.println("Tempo de duração :" + (System.currentTimeMillis() - begin) + " milliseconds");
+            System.out.println("Total de registros: " + total);
+        }
+    }
+
 }
